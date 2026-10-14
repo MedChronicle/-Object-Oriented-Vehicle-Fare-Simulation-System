@@ -1,279 +1,291 @@
-# 🚗 Smart Vehicle Fare System
+# SmartFare — Smart Vehicle Fare System
 
-A console-based **Smart Vehicle Fare System** developed in modern C++ to simulate a real-world ride booking and fare calculation platform.
+A C++17 console-based vehicle booking and fare management system with multiple vehicle categories, configurable fare rules, customer wallets, loyalty rewards, coupons, persistent trip records, driver dispatch, trip lifecycle management, and an administrative transaction ledger.
 
-The project demonstrates major **Object-Oriented Programming (OOP)** concepts including inheritance, runtime polymorphism, abstraction, operator overloading, friend functions, static members, exception handling, lambda expressions, and file handling.
+> **Project type:** Educational console application  
+> **Language:** C++17  
+> **External libraries:** None required
 
-## ✨ Features
+## Table of Contents
 
-* 👤 Customer registration and customer switching
-* 🚗 Multiple vehicle types:
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Supported Vehicles](#supported-vehicles)
+- [Fare Calculation](#fare-calculation)
+- [Trip Lifecycle](#trip-lifecycle)
+- [Main Menu](#main-menu)
+- [Admin Panel](#admin-panel)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Requirements](#requirements)
+- [Build and Run](#build-and-run)
+- [Run Self-Tests](#run-self-tests)
+- [Persistent Data Files](#persistent-data-files)
+- [Default Coupons and Admin Access](#default-coupons-and-admin-access)
+- [Limitations](#limitations)
+- [Future Enhancements](#future-enhancements)
+- [Troubleshooting](#troubleshooting)
 
-  * Car
-  * Bus
-  * Bike
-  * Auto
-  * Luxury Car
-* 💰 Vehicle-specific fare calculation
-* 📈 Admin-controlled surge pricing
-* 🌙 Night ride charges
-* ⏰ Peak-hour charges
-* 🕐 Waiting-time charges
-* 🧳 Luggage charges
-* 🎓 Student discount
-* 👴 Senior citizen discount
-* ⭐ Membership discount
-* 🎟️ Coupon system
-* 🧾 Automatic receipt generation
-* 📜 Individual customer trip history
-* 💾 Persistent trip storage using `trip_history.txt`
-* ⚖️ Fare comparison between vehicles
-* 🔎 Fare-based trip filtering using lambda expressions
-* ➕ Customer history merging using operator overloading
-* 🔐 Password-protected admin panel
-* ⚠️ Custom exception handling
-* 📊 Session summary with total customers, vehicles, and earnings
+## Overview
 
-## 🛠️ OOP Concepts Demonstrated
+SmartFare simulates the core workflow of a vehicle booking service. Customers can compare vehicle fares, request rides, manage a wallet, use coupons and loyalty points, review trip history, and view vehicle specifications. Administrators can manage vehicle availability, configure surge pricing and coupons, review performance reports, dispatch requested rides, advance trips through lifecycle states, and inspect or export transaction records.
 
-| Concept              | Implementation                                      |
-| -------------------- | --------------------------------------------------- |
-| Abstraction          | `Vehicle` abstract base class                       |
-| Inheritance          | `Car`, `Bus`, `Bike`, `Auto`, `LuxuryCar`           |
-| Runtime Polymorphism | Virtual functions and base-class pointers           |
-| Encapsulation        | Private/protected class data with public interfaces |
-| Constructors         | Vehicle and customer initialization                 |
-| Destructors          | Resource cleanup                                    |
-| Static Members       | Vehicle/customer counters and total earnings        |
-| Friend Function      | Vehicle fare comparison                             |
-| Operator Overloading | `Customer + Customer`                               |
-| Exception Handling   | Custom exceptions                                   |
-| Lambda Expression    | Fare-based trip filtering                           |
-| File Handling        | Saving and reading trip history                     |
+The application saves important records to local files, allowing trips, customer profiles, coupons, and transaction history to be loaded again when the program starts.
 
-## 🚘 Vehicle Fare Structure
+## Key Features
 
-| Vehicle       | Base/Minimum Fare | Pricing                         |
-| ------------- | ----------------: | ------------------------------- |
-| 🚗 Car        |               ₹80 | ₹15/km up to 15 km, then ₹12/km |
-| 🚌 Bus        |               ₹30 | ₹5/km after 10 km               |
-| 🏍️ Bike      |               ₹40 | ₹8/km after 3 km                |
-| 🛺 Auto       |               ₹50 | ₹10/km after 4 km               |
-| 🚘 Luxury Car |              ₹200 | ₹25/km                          |
+- **Multiple vehicle categories:** Car, Bus, AC Bus, Bike, Auto, Luxury Car, SUV, MiniVan, Truck, Bicycle, and Electric Car.
+- **Fare estimates:** Vehicle-specific base fares, distance-based pricing, round-trip discount, optional night and peak charges, waiting charges, luggage charges, baggage fees, and comfort surcharges.
+- **Dynamic surge pricing:** An administrator can set a surge multiplier from greater than `0` up to `5x`.
+- **Customer profiles:** Customer type, phone number, preferred payment method, wallet balance, loyalty points, applied coupon, and trip history.
+- **Wallet and payment options:** Cash, Card, UPI, and Wallet selection. Wallet top-ups and wallet-related events can be recorded in the transaction ledger.
+- **Coupons and rewards:** Built-in coupons, configurable coupon limits, one-use-per-customer options, student/senior/member discounts, loyalty tiers, and point redemption.
+- **Smart vehicle suggestions:** Filters by passenger capacity, availability, AC requirement, and budget; shows fare and estimated travel time.
+- **Driver dispatch:** Assigns the designated vehicle driver to a requested booking and tracks driver availability.
+- **Trip lifecycle control:** Validates transitions before a trip can be assigned, started, completed, or cancelled.
+- **Cancellation handling:** Calculates a cancellation fee and records eligible wallet refunds.
+- **Operating analytics:** Revenue and estimated operating-cost reports, driver leaderboard, vehicle ratings, top customers, and trip summaries.
+- **Persistent storage:** Saves trips, profiles, coupons, and transactions to local files.
+- **CSV exports:** Export trip and transaction records for external analysis.
+- **Input validation and exceptions:** Handles invalid distances, malformed numeric input, invalid coupons, unavailable vehicles, baggage limits, and insufficient wallet balance.
+- **Self-test mode:** Runs a lightweight set of checks without opening the interactive menus.
 
-Additional charges and discounts are applied after the base fare is calculated.
+## Supported Vehicles
 
-## 💸 Discounts & Coupons
+| Vehicle | Example characteristics |
+|---|---|
+| Car | Standard passenger car with AC |
+| Bus | High-capacity non-AC bus |
+| AC Bus | High-capacity air-conditioned bus |
+| Bike | Single-passenger option |
+| Auto | Three-passenger auto-rickshaw |
+| Luxury Car | Premium car with higher base pricing |
+| SUV | Larger passenger capacity |
+| MiniVan | Group travel option |
+| Truck | Small goods-transport model |
+| Bicycle | Low-cost, eco-friendly option |
+| Electric Car | Electric vehicle model with a configured range limit |
 
-### Customer Discounts
+Vehicle rates and specifications are configured in the source code and can be adjusted for demonstration purposes.
 
-* **Student:** 10%
-* **Senior Citizen:** 15%
-* **Member:** 20%
+## Fare Calculation
 
-### Coupon Codes
+The estimate can include several components depending on the selected vehicle and customer choices:
 
-| Coupon    | Discount |
-| --------- | -------: |
-| `SAVE10`  |      10% |
-| `FIRST50` |      50% |
-| `VIT25`   |      25% |
+1. **Vehicle base fare:** Calculated according to the vehicle's fare model and distance.
+2. **Round-trip discount:** A 10% discount on the base fare when round trip is selected.
+3. **Surge multiplier:** Configurable by the administrator.
+4. **Time-based charges:** Optional night charge of 20% and peak-hour charge of 15%; the system can also detect these periods from the local system clock.
+5. **Waiting charge:** Rs. 2 per waiting minute.
+6. **Luggage charge:** Rs. 10 per kilogram when luggage weight is entered.
+7. **Baggage fees:** Small, medium, and large bag categories use separate fees; eligible vehicle types may include one free bag.
+8. **Comfort surcharges:** Optional AC and music-system surcharges when the selected vehicle supports the requested feature.
+9. **Discounts:** Customer category discount, loyalty-tier bonus, valid coupon, and eligible redeemed loyalty points.
 
-The maximum combined discount is capped at **50%**.
+The final amount is an estimate produced by the program's configured rules. It is not connected to a real route or live transport tariff service.
 
-## 📈 Additional Charges
+## Trip Lifecycle
 
-The system supports:
-
-* Surge multiplier configured by the admin
-* **Night ride:** +20%
-* **Peak hour:** +15%
-* **Waiting:** ₹2/minute
-* **Luggage:** ₹10/kg
-
-The final fare is rounded to the nearest whole rupee.
-
-## 👨‍💼 Admin Panel
-
-The password-protected admin panel provides:
-
-1. Total vehicles created
-2. Total earnings
-3. Total registered customers
-4. View all saved trip records
-5. Configure surge multiplier
-6. Exit admin panel
-
-**Default admin password:**
+Bookings use explicit status transitions to prevent invalid jumps between states:
 
 ```text
-admin123
+Requested ──> Assigned ──> In Progress ──> Completed
+     │             │
+     └─────────────┴──────────────> Cancelled
 ```
 
-> For demonstration purposes only. This password should be changed before using the project in a real application.
+The program validates supported transitions. Completed trips cannot be cancelled, and a requested trip cannot skip directly to completion. A vehicle/driver marked busy by an active trip should not be assigned to another trip until released.
 
-## 📋 Main Menu
+## Main Menu
+
+The interactive customer menu offers:
+
+1. Register or switch customer
+2. Book a ride
+3. View available vehicles
+4. View personal trip history
+5. Compare two vehicle fares
+6. View trip analytics
+7. Merge two customer histories for a combined report
+8. View full vehicle specifications
+9. Manage wallet, loyalty points, and coupons
+10. Get smart vehicle suggestions
+11. Cancel the latest eligible ride
+12. Open the admin panel
+13. Exit
+
+## Admin Panel
+
+The admin panel contains tools for:
+
+- Fleet/customer totals, bookings, earnings, and current surge multiplier
+- Viewing the saved trip log
+- Updating the surge multiplier
+- Reviewing vehicle ratings
+- Viewing the driver leaderboard
+- Reviewing revenue, estimated fuel/operating costs, and margins
+- Viewing top customers by completed-trip spending
+- Adding, enabling, and disabling coupons
+- Toggling vehicle maintenance mode
+- Exporting trips to `trips_report.csv`
+- Changing the admin password for the current application session
+- Managing the trip dispatch and lifecycle workflow
+- Viewing and exporting the transaction ledger
+
+## Project Structure
+
+The repository is a single-source-file C++ project. Data and report files are created in the working directory when the application uses those features.
 
 ```text
-============================
-MAIN MENU
-1. Register / Switch Customer
-2. Book a Ride
-3. View Available Vehicles
-4. My Trip History
-5. Compare Two Vehicle Fares
-6. Filter Trips by Fare
-7. Merge Two Customers
-8. Admin Panel
-9. Exit
-============================
+SmartFare/
+├── README.md
+├── smart_vehicle_fare_advanced.cpp
+├── trips.dat                  # generated: saved trip records
+├── customers.dat              # generated: customer profiles and wallet details
+├── coupons.dat                # generated: coupon configuration and usage
+├── transactions.dat           # generated: transaction ledger
+├── trip_history.txt           # generated: readable trip log
+├── trips_report.csv           # generated when trip export is selected
+└── transactions_report.csv    # generated when transaction export is selected
 ```
 
-## 🧾 Trip Records
+Do not create the generated data files manually unless you understand the record formats. Keep backups of the files if you need to preserve application history.
 
-Every completed ride stores:
+## Architecture
 
-* Customer name
-* Vehicle type
-* Distance
-* Final fare
-* Date and time
+The program is organized into classes and helper functions within `smart_vehicle_fare_advanced.cpp`:
 
-Trip records are automatically appended to:
+| Component | Responsibility |
+|---|---|
+| `util` namespace | Input handling, string cleanup, formatting, and time helpers |
+| Fare exception classes | Represent invalid inputs, distance errors, unavailable vehicles, coupon errors, and wallet errors |
+| `Vehicle` and derived classes | Vehicle specifications, fare calculation, capacity, estimated time, and operating-cost estimates |
+| `Customer` | Customer profile, trip history, wallet, coupons, loyalty points, and tier calculation |
+| `CouponManager` | Coupon definitions, validation, usage limits, activation, and persistence |
+| `FareCalculator` | Surge, night/peak, waiting, luggage, baggage, comfort charges, and discounts |
+| `FileHandler` | Saving/loading trip data and customer profiles; writing trip logs and CSV exports |
+| `TransactionLedger` | Recording, displaying, loading, and exporting transaction records |
+| `ReceiptGenerator` | Printing a booking receipt |
+| `AdminPanel` | Administrative reports, coupon and maintenance controls, dispatch, trip lifecycle, and ledger access |
+| `SmartFareApp` | Application initialization, customer menu, booking flow, and shutdown persistence |
+| `runSelfTests()` | Lightweight programmatic checks for selected rules and serialization flows |
 
-```text
-trip_history.txt
-```
+## Requirements
 
-## 📁 Project Structure
+- A C++ compiler with C++17 support, such as GCC or Clang
+- Terminal or command-line access
+- Write permission in the directory where the program runs, because it creates local data and report files
 
-```text
-Smart-Vehicle-Fare-System/
-│
-├── Vehicle_Fare.cpp
-├── trip_history.txt
-└── README.md
-```
+No external packages or libraries are required.
 
-`trip_history.txt` is generated automatically when trips are saved.
+## Build and Run
 
-## ⚙️ Requirements
+Place `smart_vehicle_fare_advanced.cpp` in your project directory and open Terminal in that directory.
 
-* C++ compiler supporting **C++11 or later**
-* Terminal / Command Prompt
-* Standard C++ libraries
+### macOS or Linux
 
-The program uses standard libraries such as:
-
-```text
-iostream
-string
-vector
-cmath
-fstream
-algorithm
-iomanip
-stdexcept
-ctime
-functional
-limits
-```
-
-## ▶️ How to Run
-
-### 1. Clone the repository
+Compile with warnings enabled:
 
 ```bash
-git clone https://github.com/your-username/Smart-Vehicle-Fare-System.git
-cd Smart-Vehicle-Fare-System
+g++ -std=c++17 -Wall -Wextra -Wpedantic smart_vehicle_fare_advanced.cpp -o smartfare
 ```
 
-### 2. Compile
-
-Using `g++`:
+Run the application:
 
 ```bash
-g++ -std=c++11 Vehicle_Fare.cpp -o SmartFare
+./smartfare
 ```
 
-### 3. Run
-
-Linux/macOS:
+### Windows (MinGW-w64)
 
 ```bash
-./SmartFare
+g++ -std=c++17 -Wall -Wextra -Wpedantic smart_vehicle_fare_advanced.cpp -o smartfare.exe
+smartfare.exe
 ```
 
-Windows:
+## Run Self-Tests
+
+Run the built-in tests without opening the customer/admin menus:
 
 ```bash
-SmartFare.exe
+./smartfare --self-test
 ```
 
-## 🔄 System Flow
+On Windows, run:
 
-```text
-Start
-  ↓
-Initialize Vehicle Fleet
-  ↓
-Register Customer
-  ↓
-Select Vehicle
-  ↓
-Enter Distance
-  ↓
-Calculate Base Fare
-  ↓
-Apply Surge / Night / Peak / Waiting / Luggage Charges
-  ↓
-Apply Customer Discount / Coupon
-  ↓
-Generate Receipt
-  ↓
-Save Trip Record
-  ↓
-Update Total Earnings
-  ↓
-View History / Compare / Filter / Admin
-  ↓
-Exit
+```bash
+smartfare.exe --self-test
 ```
 
-## 🎯 Project Objective
+The checks cover selected trip-state transitions, cancellation-fee cases, trip record serialization, backward compatibility with the older 16-field trip record, transaction serialization, a sample fare calculation, negative-distance rejection, and customer profile serialization/restoration.
 
-The main objective of this project is to implement a realistic vehicle fare management system while demonstrating practical applications of **C++ Object-Oriented Programming concepts**.
+The included self-tests are useful smoke tests, but they are not a substitute for comprehensive automated testing of all booking, payment, refund, file-system, and edge-case scenarios.
 
-Instead of implementing each vehicle independently, the system uses an abstract `Vehicle` class and derived vehicle classes, allowing fare calculations to be performed through runtime polymorphism.
+## Persistent Data Files
 
-## 🚀 Future Improvements
+| File | Purpose |
+|---|---|
+| `trips.dat` | Structured trip records, including booking status, fare, vehicle, customer, and route fields |
+| `customers.dat` | Customer details, wallet balance, points, preferred payment method, and used coupons |
+| `coupons.dat` | Coupon settings and usage counters |
+| `transactions.dat` | Transaction entries such as wallet top-ups, payments, refunds, and cancellation fees |
+| `trip_history.txt` | Human-readable trip log |
+| `trips_report.csv` | Trip export generated through the admin panel |
+| `transactions_report.csv` | Transaction export generated through the transaction ledger menu |
 
-Possible future upgrades include:
+These are local flat files rather than a database. The program should be run from a directory where it can read and write these files consistently.
 
-* GUI-based interface
-* Database integration
-* Online payment support
-* GPS and real-time distance calculation
-* Driver registration and management
-* Ride cancellation system
-* User authentication
-* Digital payment receipts
-* Booking IDs and ride status tracking
-* Dynamic surge pricing based on demand
-* Multi-file project architecture
-* REST API integration
+## Default Coupons and Admin Access
 
-## 📚 Academic Context
+The source initializes these coupons when no saved coupon configuration overrides them:
 
-**Course:** BACSE104 — Structured and Object-Oriented Programming
-**Institution:** VIT
-**Semester:** Winter Semester 2025–2026
-**Slot:** D1
+| Coupon | Discount | Usage rule |
+|---|---:|---|
+| `SAVE10` | 10% | Repeatable |
+| `FIRST50` | 50% | Once per customer |
+| `VIT25` | 25% | Repeatable |
+| `WELCOME15` | 15% | Up to 100 uses, once per customer |
 
-## 👨‍💻 Author
+The source code sets the initial admin password to `admin123`. Change it before demonstrating the application to others. The current password-change feature applies to the running session; it is not a production authentication system and the password is not securely hashed or managed through a user database.
 
-**Arpit**
+## Limitations
+
+- This is a console application, not a web or mobile app.
+- Pickup and destination are stored as text; road distance is entered by the user.
+- ETA is an estimate based on configured average vehicle speed, not live traffic.
+- Driver assignment uses the predefined vehicle/driver records; no live GPS-based nearest-driver service is connected.
+- Card and UPI are selectable payment labels only. The application does not contact a bank, payment gateway, or UPI provider.
+- Data is stored in local text files, not a transactional database. Back up these files and avoid editing them while the application is running.
+- Admin authentication is suitable only for a local educational demonstration, not a public deployment.
+- Operating costs and profitability are simplified estimates based on configured mileage and fuel-price assumptions.
+
+## Future Enhancements
+
+- Add a REST API and a responsive web frontend for customers, drivers, and administrators.
+- Integrate a maps/geocoding service for route distance, toll estimates, alternate routes, and map-based pickup selection.
+- Add real GPS tracking and driver-location updates through a secure service.
+- Implement a stronger dispatch engine based on distance, driver availability, vehicle capacity, ratings, and estimated arrival time.
+- Replace flat-file persistence with SQLite or PostgreSQL and use database transactions for bookings, wallets, refunds, and state changes.
+- Add secure authentication with password hashing, role-based permissions, session expiry, and audit controls.
+- Integrate a payment gateway in a sandbox before considering production payment workflows.
+- Add scheduled bookings, trip sharing, emergency workflows, lost-and-found reports, and accessibility requirements.
+- Add unit/integration tests for all fare rules, coupon limits, refunds, persistence failures, and concurrent booking scenarios.
+- Add CI builds, static analysis, code formatting, and automated regression tests.
+
+## Troubleshooting
+
+**`g++: command not found`**  
+Install a C++ compiler toolchain, then confirm it is available with `g++ --version` or `clang++ --version`.
+
+**The application cannot save records**  
+Run it from a writable folder and check file permissions. The application uses relative paths, so data files are created in the current working directory.
+
+**A trip cannot be assigned or started**  
+Check its current status in the dispatch menu. Only valid lifecycle transitions are accepted, and a busy or maintained vehicle/driver cannot be assigned to a new ride.
+
+**A wallet payment falls back to Cash**  
+The current wallet balance may be lower than the estimated final fare. Top up the wallet before booking with Wallet as the preferred payment method.
 
 ---
 
-⭐ If you found this project interesting, consider giving the repository a star!
+Built as an educational C++17 project to demonstrate object-oriented programming, inheritance, polymorphism, operator overloading, templates, lambdas, exception handling, file persistence, fare modelling, and administrative analytics.
